@@ -1,0 +1,28 @@
+# Python / venv
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+dist/
+build/
+npm-debug.log*
+yarn-error.log
+package-lock.json
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Secret files
+.env
