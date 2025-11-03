@@ -1,0 +1,28 @@
+# Core framework
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+
+# OpenAI + LLM integrations
+openai==1.59.4
+
+
+# Retrieval and embeddings
+langchain>=0.3.0
+chromadb>=0.5.20
+
+# Database connectors
+psycopg2-binary>=2.9.9
+SQLAlchemy>=2.0.31
+
+# Utility libraries
+pydantic>=2.9.0
+requests>=2.31.0
+numpy>=1.26.4
+typer>=0.12.3
+
+# Multilingual processing
+langdetect>=1.0.9
+deep-translator==1.11.4
+
+# Optional but recommended for performance/logging
+tqdm>=4.66.0
