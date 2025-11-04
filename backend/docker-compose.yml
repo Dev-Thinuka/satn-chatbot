@@ -1,0 +1,15 @@
+services:
+  db:
+    container_name: satn_chatbot_db
+    image: postgres:16
+    environment:
+      POSTGRES_USER: satn_admin
+      POSTGRES_PASSWORD: Thinuka!@#123
+      POSTGRES_DB: satn_chatbot
+
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+volumes:
+  db_data:
