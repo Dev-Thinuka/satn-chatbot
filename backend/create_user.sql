@@ -1,5 +1,5 @@
 -- Create dedicated application user
-DO
+/*DO
 $$
 BEGIN
    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'satn_user') THEN

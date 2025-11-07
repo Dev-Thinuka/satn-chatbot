@@ -3,7 +3,7 @@ DO
 $$
 BEGIN
     IF NOT EXISTS (
-        SELECT FROM pg_roles WHERE rolname = 'satn_user'
+        SELECT FROM pg_roles WHERE rolname = 'satn_admin'
     ) THEN
         CREATE ROLE satn_user WITH LOGIN PASSWORD 'satn_password';
     END IF;
