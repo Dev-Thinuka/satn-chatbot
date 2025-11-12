@@ -1,2 +1,7 @@
-# backend/app/db/models/__init__.py
-from .listing import Listing
+from .users import User
+from .agents import Agent
+from .properties import Property
+from .company_info import CompanyInfo
+from .interactions import Interaction
+
+__all__ = ["User", "Agent", "Property", "CompanyInfo", "Interaction"]
