@@ -2,136 +2,140 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SA Thomson Nerys Chatbot</title>
+
+  <!-- Styles -->
   <link rel="stylesheet" href="widget.css" />
+  <script>
+  window.SATN_CONFIG = { API_BASE: "http://localhost:8000/api/v1", TIMEOUT_MS: 15000 };
+</script>
+<script src="widget.js"></script>
+<!-- the hard-bind fallback from step 1 here -->
+
 </head>
 <body>
-  <!-- Floating Chat Button -->
-  <button id="chat-toggle" class="chat-toggle">💬</button>
+  <!-- Floating Chat Button (single source) -->
+  <button id="chat-toggle" class="chat-toggle" aria-label="Open chat">💬</button>
 
-  <!-- Chat Widget -->
-  <div class="chat-widget hidden" id="chat-widget">
+  <!-- Chat Widget (single instance) -->
+  <div class="chat-widget hidden" id="chat-widget" role="dialog" aria-modal="false" aria-label="Chat with SA Thomson Nerys">
     <div class="chat-header">
       <div class="chat-header-info">
-        <img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="Kalani" class="chat-avatar" />
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png"
+          alt="Kalani"
+          class="chat-avatar"
+          width="36"
+          height="36"
+          loading="lazy"
+        />
         <div>
-          <h2>Kalani (AI Assistant)</h2>
+          <h2 aria-label="Assistant name">Kalani - AI Assistant</h2>
           <span class="status">🟢 Online</span>
         </div>
       </div>
+
       <div class="chat-tools">
-        <select id="lang-select" class="lang-select">
+        <label for="lang-select" class="sr-only">Language</label>
+        <select id="lang-select" class="lang-select" aria-label="Language">
           <option>English</option>
           <option>සිංහල</option>
           <option>தமிழ்</option>
         </select>
-        <button id="close-chat" class="chat-close">−</button>
+
+        <button id="close-chat" class="chat-close" aria-label="Close chat">−</button>
       </div>
     </div>
 
+    <!-- Messages feed -->
     <div class="chat-body">
-
-  <!-- Bot message -->
-  <div class="bot-message">
-    <p>👋 Hello! I’m Kalani, your SA Thomson Nerys AI assistant. How can I help you today?</p>
-    <span class="timestamp">7:20 ✓</span>
-  </div>
-
-  <!-- User message -->
-  <div class="user-message">
-    <p>Show me available properties in Colombo.</p>
-    <span class="timestamp">7:21 ✓✓</span>
-  </div>
-
-  <!-- Bot message -->
-  <div class="bot-message">
-    <p>Sure! Here are some available properties in Colombo.</p>
-    <span class="timestamp">7:22 ✓</span>
-  </div>
-  
-  <!-- Property cards as part of chat -->
-  <div class="chat-message property-list">
-    <div class="property-card">
-      <img src="https://cf.bstatic.com/xdata/images/hotel/max1024x768/619226674.jpg?k=525f03e40bd0cbc7d811a591607baeacc541c82c8556edbf73b88ca662187821&o=" alt="Modern Apartment" />
-      <div class="property-info">
-        <h4>Modern Apartment</h4>
-        <p>3 Bed • 2 Bath • 1800 sqft</p>
-        <span class="price">$450,000</span>
-        <button class="property-btn">View Details</button>
+      <!-- Welcome message -->
+      <div class="bot-message">
+        <p>👋 Hello! I’m Kalani, your SA Thomson Nerys AI assistant. How can I help you today?</p>
+        <span class="timestamp"></span>
       </div>
     </div>
 
-    <div class="property-card">
-      <img src="https://cf.bstatic.com/xdata/images/hotel/max1024x768/619226674.jpg?k=525f03e40bd0cbc7d811a591607baeacc541c82c8556edbf73b88ca662187821&o=" alt="Luxury Villa" />
-      <div class="property-info">
-        <h4>Luxury Villa</h4>
-        <p>5 Bed • 4 Bath • 3200 sqft</p>
-        <span class="price">$1,250,000</span>
-        <button class="property-btn">View Details</button>
-      </div>
-    </div>
-    <div class="property-card">
-      <img src="https://cf.bstatic.com/xdata/images/hotel/max1024x768/619226674.jpg?k=525f03e40bd0cbc7d811a591607baeacc541c82c8556edbf73b88ca662187821&o=" alt="Modern Apartment" />
-      <div class="property-info">
-        <h4>Modern Apartment</h4>
-        <p>3 Bed • 2 Bath • 1800 sqft</p>
-        <span class="price">$450,000</span>
-        <button class="property-btn">View Details</button>
-      </div>
-    </div>
-
-    <div class="property-card">
-      <img src="https://cf.bstatic.com/xdata/images/hotel/max1024x768/619226674.jpg?k=525f03e40bd0cbc7d811a591607baeacc541c82c8556edbf73b88ca662187821&o=" alt="Luxury Villa" />
-      <div class="property-info">
-        <h4>Luxury Villa</h4>
-        <p>5 Bed • 4 Bath • 3200 sqft</p>
-        <span class="price">$1,250,000</span>
-        <button class="property-btn">View Details</button>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-
-    <!-- Footer -->
+    <!-- Footer: quick actions + input row -->
     <div class="chat-footer">
       <div class="quick-replies">
-        
-        <button>📞 Contact an Agent </button>
+        <button type="button" class=" contact-agent">📞 Contact an Agent</button>
+        <button type="button" id="btn-download-pdf" class=" contact-agent">⬇️ Download Transcript (PDF)</button>
       </div>
 
       <div class="chat-input-area">
         <label for="file-upload" class="file-attach-btn" title="Attach file">📎</label>
         <input id="file-upload" type="file" class="file-input" accept="image/*,.pdf,.doc,.docx" />
-        <input type="text" placeholder="Type your message here..." class="chat-input" />
-        <button class="send-btn">➤</button>
+        <input type="text" placeholder="Type your message here..." class="chat-input" aria-label="Type your message" />
+        <button class="send-btn" aria-label="Send">➤</button>
       </div>
     </div>
   </div>
 
+  <!-- Runtime config (single source of truth) -->
+  <script>
+    window.SATN_CONFIG = {
+      API_BASE: "http://localhost:8000/api/v1",
+      TIMEOUT_MS: 15000
+    };
+  </script>
+
+  <!-- Widget logic (binds to existing DOM; does NOT auto-inject second widget/button) -->
+  <script src="widget.js"></script>
+
+  <!-- Optional: small helper for the file input + toggle (keep minimal to avoid duplication) -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const toggle = document.getElementById('chat-toggle');
-      const chat = document.getElementById('chat-widget');
-      const close = document.getElementById('close-chat');
+      const toggle = document.getElementById("chat-toggle");
+      const chat   = document.getElementById("chat-widget");
+      const close  = document.getElementById("close-chat");
+      const file   = document.getElementById("file-upload");
 
-      toggle.addEventListener('click', () => {
-        chat.classList.toggle('hidden');
-        toggle.style.display = chat.classList.contains('hidden') ? 'block' : 'none';
+      toggle.addEventListener("click", () => {
+        chat.classList.toggle("hidden");
+        toggle.style.display = chat.classList.contains("hidden") ? "block" : "none";
       });
 
-      close.addEventListener('click', () => {
-        chat.classList.add('hidden');
-        toggle.style.display = 'block';
+      close.addEventListener("click", () => {
+        chat.classList.add("hidden");
+        toggle.style.display = "block";
       });
 
-      document.getElementById('file-upload').addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (file) console.log('File selected:', file.name);
+      file.addEventListener("change", (e) => {
+        const f = e.target.files[0];
+        if (f) console.log("[SATN] File selected:", f.name);
       });
     });
   </script>
+  <script>
+  // hard-bind toggle/close in case other scripts fail to attach
+  document.addEventListener("DOMContentLoaded", () => {
+    const btn   = document.getElementById("chat-toggle");
+    const panel = document.getElementById("chat-widget");
+    const close = document.getElementById("close-chat");
+
+    if (!btn || !panel) {
+      console.error("[SATN] toggle/panel not found");
+      return;
+    }
+
+    // single click handler
+    btn.addEventListener("click", () => {
+      console.log("[SATN] toggle clicked");
+      panel.classList.toggle("hidden");
+      btn.style.display = panel.classList.contains("hidden") ? "block" : "none";
+    });
+
+    if (close) {
+      close.addEventListener("click", () => {
+        console.log("[SATN] close clicked");
+        panel.classList.add("hidden");
+        btn.style.display = "block";
+      });
+    }
+  });
+</script>
+
 </body>
 </html>

@@ -1,28 +1,42 @@
-# Python / venv
-.venv/
-venv/
-env/
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Envs & secrets
+.venv/
+.env
+.env.*
 
 # Node
 node_modules/
-dist/
-build/
-npm-debug.log*
-yarn-error.log
-package-lock.json
 
-# VS Code
-.vscode/
-*.code-workspace
-
-# OS files
+# Misc
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
+# Artifacts we no longer use
+notebooks/
+data/
+uploads/
+assets/screenshots/
 
-# Secret files
-.env
+# ETL / sync
+etl/
+airbyte/
+dags/
+scripts/etl/
+# node
+node_modules/
+package-lock.json
+
+# build artifacts
+dist/
+.vite/
+
+# OS/editor
+.DS_Store
+Thumbs.db
