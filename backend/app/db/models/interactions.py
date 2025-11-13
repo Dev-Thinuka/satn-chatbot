@@ -1,13 +1,26 @@
-﻿from sqlalchemy import Column, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID, VARCHAR, TIMESTAMP
-from sqlalchemy import text
-from ..base import Base
+﻿# app/db/models/interactions.py
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy.orm import relationship
+
+from .base import Base
+
 
 class Interaction(Base):
     __tablename__ = "interactions"
-    id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("uuid_generate_v4()"))
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
-    query_text = Column(VARCHAR, nullable=True)
-    response_text = Column(VARCHAR, nullable=True)
-    lang = Column(VARCHAR(8), nullable=True)
-    timestamp = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("NOW()"))
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String(255), nullable=False, index=True)
+    channel = Column(String(50), nullable=False, default="web_widget")  # web_widget, whatsapp, etc.
+    language = Column(String(10), nullable=True)  # 'en', 'si', 'ta'
+    user_message = Column(Text, nullable=False)
+    bot_response = Column(Text, nullable=True)
+
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    agent_id = Column(Integer, ForeignKey("agents.id"), nullable=True)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    # Relationship targets as strings to avoid forward-reference/type issues
+    user = relationship("User", back_populates="interactions")
+    agent = relationship("Agent", back_populates="interactions")
