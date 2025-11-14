@@ -1,19 +1,68 @@
-﻿from fastapi import APIRouter, Depends, HTTPException
+﻿# backend/app/api/v1/agents.py
+
+from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import select
-from ...db.session import get_db
-from ...db.models.agents import Agent
 
-router = APIRouter()
+from app.db import get_db
+from app.schemas.agents import AgentRead, AgentCreate, AgentUpdate
+from app.services import agents as agents_service
 
-@router.get("/agents")
-def list_agents(db: Session = Depends(get_db)):
-    try:
-        rows = db.execute(select(Agent).order_by(Agent.name)).scalars().all()
-        return [
-            {"id": str(r.id), "name": r.name, "role": r.role, "contact_info": r.contact_info or {}}
-            for r in rows
-        ]
-    except Exception as e:
-        # Surface the cause during dev; in prod, log and return generic error
-        raise HTTPException(status_code=500, detail=f"/agents failed: {type(e).__name__}: {e}")
+router = APIRouter(
+    prefix="/agents",
+    tags=["agents"],
+)
+
+
+@router.get("", response_model=List[AgentRead], summary="List all agents")
+def list_agents(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+):
+    return agents_service.get_agents(db=db, skip=skip, limit=limit)
+
+
+@router.get("/{agent_id}", response_model=AgentRead, summary="Get agent by ID")
+def get_agent_by_id(
+    agent_id: int,
+    db: Session = Depends(get_db),
+):
+    agent = agents_service.get_agent(db, agent_id)
+    if not agent:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Agent not found",
+        )
+    return agent
+
+
+@router.post(
+    "",
+    response_model=AgentRead,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create agent",
+)
+def create_agent(
+    payload: AgentCreate,
+    db: Session = Depends(get_db),
+):
+    # Later: protect with admin auth
+    agent = agents_service.create_agent(db, payload)
+    return agent
+
+
+@router.put("/{agent_id}", response_model=AgentRead, summary="Update agent")
+def update_agent(
+    agent_id: int,
+    payload: AgentUpdate,
+    db: Session = Depends(get_db),
+):
+    agent = agents_service.update_agent(db, agent_id, payload)
+    if not agent:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Agent not found",
+        )
+    return agent

@@ -1,3 +1,5 @@
+# backend/app/services/agents.py
+
 from typing import List, Optional
 
 from sqlalchemy.orm import Session
@@ -22,10 +24,15 @@ def create_agent(db: Session, agent_in: AgentCreate) -> Agent:
     return agent
 
 
-def update_agent(db: Session, agent: Agent, agent_in: AgentUpdate) -> Agent:
-    data = agent_in.model_dump(exclude_unset=True)
-    for field, value in data.items():
+def update_agent(db: Session, agent_id: int, agent_in: AgentUpdate) -> Optional[Agent]:
+    agent = get_agent(db, agent_id)
+    if not agent:
+        return None
+
+    update_data = agent_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
         setattr(agent, field, value)
+
     db.add(agent)
     db.commit()
     db.refresh(agent)

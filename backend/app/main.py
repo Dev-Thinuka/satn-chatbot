@@ -1,52 +1,69 @@
-﻿from __future__ import annotations
+﻿# backend/app/main.py
 
-import os
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-# Routers
-from .api.v1.chat import router as chat_router
+from app.core.config import settings
+from app.db import get_db
+from app.api.v1.chat import router as chat_router
+from app.api.v1.agents import router as agents_router
+from app.api.v1.company_info import router as company_info_router
+from app.api.v1.interactions import router as interactions_router
 
-# If you have a PDF router, keep it; otherwise this try/except is harmless.
-try:
-    from .api.v1.pdf import router as pdf_router  # type: ignore
-except Exception:
-    pdf_router = None  # type: ignore
 
-# If you already centralize DB session in another module, keep it.
-# We reuse the chat router's get_db to avoid duplication here.
-from .api.v1.chat import get_db  # reuse MVP get_db/engine
+def create_app() -> FastAPI:
+    app = FastAPI(title=settings.PROJECT_NAME)
 
-app = FastAPI(title="SATN Chatbot API", version="0.1.0")
+    # --- CORS ---
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],  # DEV ONLY – tighten for production
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-# CORS for local dev and widget
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # tighten in prod
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    # --- Root & Health ---
 
-# Health
-@app.get("/api/v1/healthz")
-def healthz():
-    return {"status": "ok"}
+    @app.get("/", tags=["root"])
+    def root():
+        return {"service": "SATN Chatbot API"}
 
-# DB check (you were getting 404—this adds it)
-@app.get("/api/v1/dbcheck")
-def dbcheck(db: Session = Depends(get_db)):
-    val = db.execute(text("SELECT 1")).scalar_one()
-    return {"db": "ok", "result": int(val)}
+    @app.get("/api/v1/healthz", tags=["health"])
+    def healthz():
+        return {"status": "ok"}
 
-# Mount routers
-app.include_router(chat_router)
-if pdf_router:
-    app.include_router(pdf_router)  # keeps your existing PDF endpoint
+    @app.get("/api/v1/dbcheck", tags=["health"])
+    def dbcheck(db: Session = Depends(get_db)):
+        """
+        For demo: never crash FastAPI; always return JSON status.
+        """
+        try:
+            val = db.execute(text("SELECT 1")).scalar_one()
+            return {
+                "status": "ok",
+                "db": True,
+                "value": val,
+                "url": settings.database_url,
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "db": False,
+                "error": str(e),
+                "url": settings.database_url,
+            }
 
-# Root
-@app.get("/")
-def root():
-    return {"service": "SATN Chatbot API"}
+    # --- API Routers (Wave 1) ---
+
+    app.include_router(chat_router, prefix=settings.API_V1_PREFIX)
+    app.include_router(agents_router, prefix=settings.API_V1_PREFIX)
+    app.include_router(company_info_router, prefix=settings.API_V1_PREFIX)
+    app.include_router(interactions_router, prefix=settings.API_V1_PREFIX)
+
+    return app
+
+
+app = create_app()
