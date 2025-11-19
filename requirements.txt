@@ -1,28 +1,46 @@
-# Core framework
-fastapi>=0.115.0
-uvicorn[standard]>=0.30.0
+# --- Core Web Framework ---
+fastapi>=0.111.0,<0.130.0
+uvicorn[standard]>=0.30.0,<0.40.0
 
-# OpenAI + LLM integrations
-openai==1.59.4
+# --- Data & Database ---
+SQLAlchemy>=2.0.29,<2.1.0
+psycopg[binary]>=3.1.18,<4.0.0     # PostgreSQL driver for SQLAlchemy (postgresql+psycopg://)
 
+# --- Pydantic & Settings ---
+pydantic>=2.6.4,<3.0.0
+pydantic-settings>=2.2.1,<3.0.0
 
-# Retrieval and embeddings
-langchain>=0.3.0
-chromadb>=0.5.20
+# --- Auth & Security ---
+python-jose[cryptography]>=3.3.0,<4.0.0  # JWT handling
+passlib[bcrypt]>=1.7.4,<2.0.0           # password hashing
+email-validator>=2.2.0,<3.0.0           # FastAPI EmailStr support
 
-# Database connectors
-psycopg2-binary>=2.9.9
-SQLAlchemy>=2.0.31
+# --- Migrations (optional but recommended) ---
+alembic>=1.13.1,<2.0.0
 
-# Utility libraries
-pydantic>=2.9.0
-requests>=2.31.0
-numpy>=1.26.4
-typer>=0.12.3
+# --- HTTP / External APIs (LLMs, notifications, etc.) ---
+httpx>=0.27.0,<0.29.0
+requests>=2.32.0,<3.0.0
 
-# Multilingual processing
-langdetect>=1.0.9
-deep-translator==1.11.4
+# --- LLM / Chatbot Integration ---
+openai>=2.7.0,<3.0.0
 
-# Optional but recommended for performance/logging
-tqdm>=4.66.0
+# --- PDF & Document Utilities (for pdf_service, pdfs, etc.) ---
+pypdf>=4.2.0,<5.0.0
+
+# --- Env & Logging ---
+python-dotenv>=1.0.1,<2.0.0
+loguru>=0.7.2,<1.0.0
+
+# --- Testing & Dev Tools ---
+pytest>=8.1.0,<9.0.0
+pytest-asyncio>=0.23.0,<0.24.0
+coverage>=7.5.0,<8.0.0
+black>=24.4.0,<25.0.0
+isort>=5.13.0,<6.0.0
+mypy>=1.9.0,<2.0.0
+ruff>=0.4.0,<0.6.0
+
+# --- Email Service ---
+sendgrid>=6.11.0
+psycopg2-binary>=2.9
