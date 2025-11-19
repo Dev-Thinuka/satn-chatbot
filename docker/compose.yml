@@ -7,7 +7,7 @@
       POSTGRES_USER: satn_admin
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - satn_pg_data:/var/lib/postgresql/data
       - ./docker/init:/docker-entrypoint-initdb.d:ro

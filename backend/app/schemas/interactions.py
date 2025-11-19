@@ -1,28 +1,25 @@
-﻿# app/schemas/interactions.py
-from pydantic import BaseModel, EmailStr
-from typing import Optional, List, Dict
+﻿from datetime import datetime
+from typing import Optional
 
-class ChatRequest(BaseModel):
-    name: str
-    email: EmailStr
-    phone: Optional[str] = None
-    message: str
-    lang: Optional[str] = None  # "en", "si", "ta"
+from pydantic import BaseModel, ConfigDict
 
-class ChatResponse(BaseModel):
-    reply: str
-    user_id: str
-    interaction_id: str
-    properties: Optional[List[Dict]] = None  # lightweight cards for UI
 
-# --- PDF Summary ---
-class MessageItem(BaseModel):
-    role: str  # "user" | "assistant"
-    text: str
-    ts: Optional[str] = None
+class InteractionBase(BaseModel):
+    session_id: str
+    channel: str = "web_widget"
+    language: Optional[str] = None
+    user_message: str
+    bot_response: Optional[str] = None
 
-class PDFSummaryRequest(BaseModel):
-    name: str
-    email: EmailStr
-    messages: List[MessageItem]
-    properties: Optional[List[Dict]] = None
+
+class InteractionCreate(InteractionBase):
+    pass
+
+
+class InteractionRead(InteractionBase):
+    id: int
+    created_at: datetime
+    user_id: Optional[int] = None
+    agent_id: Optional[int] = None
+
+    model_config = ConfigDict(from_attributes=True)

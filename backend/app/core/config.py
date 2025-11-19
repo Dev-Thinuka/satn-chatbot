@@ -1,20 +1,56 @@
-﻿from pydantic import BaseModel
-from functools import lru_cache
-import os
+﻿# app/core/config.py
+from typing import List, Optional
 
-class Settings(BaseModel):
-    app_env: str = os.getenv("APP_ENV", "development")
-    app_port: int = int(os.getenv("APP_PORT", "8000"))
-    database_url: str = os.getenv("DATABASE_URL", "postgresql+psycopg://satn_admin:changeme@localhost:5432/satn_db")
-    smtp_host: str | None = os.getenv("SMTP_HOST")
-    smtp_port: int = int(os.getenv("SMTP_PORT", "587"))
-    smtp_user: str | None = os.getenv("SMTP_USER")
-    smtp_password: str | None = os.getenv("SMTP_PASSWORD")
-    sales_alert_to: str = os.getenv("SALES_ALERT_TO", "sales@sathomson.com.au")
-    from_email: str = os.getenv("FROM_EMAIL", "no-reply@sathomson.com.au")
-    jwt_secret: str = os.getenv("JWT_SECRET", "change_me")
-    jwt_alg: str = os.getenv("JWT_ALG", "HS256")
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-@lru_cache
-def get_settings() -> Settings:
-    return Settings()
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",             # <--- ADD THIS LINE
+    )
+
+    # General
+    ENV: str = "dev"
+    PROJECT_NAME: str = "SA Thomson Chatbot Backend"
+    API_V1_PREFIX: str = "/api/v1"
+
+    # Database
+    POSTGRES_HOST: str = "localhost"
+    POSTGRES_PORT: int = 5432
+    POSTGRES_USER: str = "satn_admin"
+    POSTGRES_PASSWORD: str = "Thinuka!@#123"
+    POSTGRES_DB: str = "satn_db"
+    SQLALCHEMY_DATABASE_URI: Optional[str] = None  # override if you want full DSN
+
+    # CORS – add/remove origins as needed
+    BACKEND_CORS_ORIGINS: List[str] = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "https://sathomson.com.au",
+    ]
+
+    # Auth / Security
+    SECRET_KEY: str = "CHANGE_THIS_IN_ENV"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    ALGORITHM: str = "HS256"
+
+    @property
+    def database_url(self) -> str:
+        """
+        Build the SQLAlchemy database URL.
+        Uses SQLALCHEMY_DATABASE_URI if set, otherwise builds from parts.
+        """
+        if self.SQLALCHEMY_DATABASE_URI:
+            return self.SQLALCHEMY_DATABASE_URI
+
+        # Requires psycopg or psycopg to be installed
+        return (
+            f"postgresql+psycopg://{self.POSTGRES_USER}:"
+            f"{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:"
+            f"{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        )
+
+
+settings = Settings()
