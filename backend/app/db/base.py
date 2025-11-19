@@ -1,9 +1,8 @@
-﻿# backend/app/db/models/base.py
-from __future__ import annotations
+﻿# backend/app/db/base.py
 
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import declarative_base
 
+Base = declarative_base()
 
-class Base(DeclarativeBase):
-    """Base class for all SQLAlchemy ORM models."""
-    pass
+# DO NOT import models here.
+# Models automatically register themselves when imported by SQLAlchemy.

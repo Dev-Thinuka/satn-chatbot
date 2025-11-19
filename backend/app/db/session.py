@@ -1,32 +1,34 @@
-﻿# app/db/session.py
+﻿# backend/app/db/session.py
+
+import os
+from contextlib import contextmanager
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
-from app.core.config import settings
-from .models.base import Base  # relative import to avoid Pylance issues
+POSTGRES_USER = os.getenv("POSTGRES_USER", "satn_admin")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "SatnDb2025")
+POSTGRES_DB = os.getenv("POSTGRES_DB", "satn_db")
+POSTGRES_HOST = os.getenv("POSTGRES_HOST", "127.0.0.1")
+POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5433")
 
-# Use the property `database_url` (as defined in your Settings),
-# NOT a non-existent `DATABASE_URL` attribute.
-DATABASE_URL = settings.database_url
-
-engine = create_engine(
-    DATABASE_URL,
-    pool_pre_ping=True,
+SQLALCHEMY_DATABASE_URL = (
+    f"postgresql+psycopg2://{POSTGRES_USER}:"
+    f"{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 )
 
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine,
-)
+print("SQLALCHEMY_DATABASE_URL:", SQLALCHEMY_DATABASE_URL)
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL, future=True)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def get_db():
     """
-    FastAPI dependency that yields a DB session and closes it afterwards.
+    FastAPI dependency that yields a SQLAlchemy Session.
     """
-    db = SessionLocal()
+    db: Session = SessionLocal()
     try:
         yield db
     finally:

@@ -5,75 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SA Thomson Nerys Chatbot</title>
 
-  <!-- Styles -->
   <link rel="stylesheet" href="widget.css" />
-  <script>
-  window.SATN_CONFIG = { API_BASE: "http://localhost:8000/api/v1", TIMEOUT_MS: 15000 };
-</script>
-<script src="widget.js"></script>
-<!-- the hard-bind fallback from step 1 here -->
 
-</head>
-<body>
-  <!-- Floating Chat Button (single source) -->
-  <button id="chat-toggle" class="chat-toggle" aria-label="Open chat">💬</button>
-
-  <!-- Chat Widget (single instance) -->
-  <div class="chat-widget hidden" id="chat-widget" role="dialog" aria-modal="false" aria-label="Chat with SA Thomson Nerys">
-    <div class="chat-header">
-      <div class="chat-header-info">
-        <img
-          src="./boticon.png"
-          alt="Kalani"
-          class="chat-avatar"
-          width="36"
-          height="36"
-          loading="lazy"
-        />
-        <div>
-          <h2 aria-label="Assistant name">Neryx- AI Assistant</h2>
-          <span class="status">🟢 Online</span>
-        </div>
-      </div>
-
-      <div class="chat-tools">
-        <label for="lang-select" class="sr-only">Language</label>
-        <select id="lang-select" class="lang-select" aria-label="Language">
-          <option>English</option>
-          <option>සිංහල</option>
-          <option>தமிழ்</option>
-        </select>
-
-        <button id="close-chat" class="chat-close" aria-label="Close chat">−</button>
-      </div>
-    </div>
-
-    <!-- Messages feed -->
-    <div class="chat-body">
-      <!-- Welcome message -->
-      <div class="bot-message">
-        <p>👋 Hello! I’m Neryx, your SA Thomson Nerys AI assistant. How can I help you today?</p>
-        <span class="timestamp"></span>
-      </div>
-    </div>
-
-    <!-- Footer: quick actions + input row -->
-    <div class="chat-footer">
-      <div class="quick-replies">
-        <button type="button" class=" contact-agent">📞 Contact an Human Agent</button>
-        
-      </div>
-
-      <div class="chat-input-area">
-        <label for="file-upload" class="file-attach-btn" title="Attach file">📎</label>
-        <input id="file-upload" type="file" class="file-input" accept="image/*,.pdf,.doc,.docx" />
-        <input type="text" placeholder="Type your message here..." class="chat-input" aria-label="Type your message" />
-        <button class="send-btn" aria-label="Send">➤</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Runtime config (single source of truth) -->
   <script>
     window.SATN_CONFIG = {
       API_BASE: "http://localhost:8000/api/v1",
@@ -81,61 +14,78 @@
     };
   </script>
 
-  <!-- Widget logic (binds to existing DOM; does NOT auto-inject second widget/button) -->
-  <script src="widget.js"></script>
+  <script src="widget.js" defer></script>
+</head>
 
-  <!-- Optional: small helper for the file input + toggle (keep minimal to avoid duplication) -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const toggle = document.getElementById("chat-toggle");
-      const chat   = document.getElementById("chat-widget");
-      const close  = document.getElementById("close-chat");
-      const file   = document.getElementById("file-upload");
+<body>
 
-      toggle.addEventListener("click", () => {
-        chat.classList.toggle("hidden");
-        toggle.style.display = chat.classList.contains("hidden") ? "block" : "none";
-      });
+  <!-- LEAD POPUP (static markup, JS uses its own dynamic popup for now) -->
+  <div id="lead-overlay" class="lead-overlay hidden"></div>
 
-      close.addEventListener("click", () => {
-        chat.classList.add("hidden");
-        toggle.style.display = "block";
-      });
+  <div id="lead-modal" class="lead-modal hidden">
+    <h2>Before we continue…</h2>
+    <p>Please share your contact details so we can personalise your support.</p>
 
-      file.addEventListener("change", (e) => {
-        const f = e.target.files[0];
-        if (f) console.log("[SATN] File selected:", f.name);
-      });
-    });
-  </script>
-  <script>
-  // hard-bind toggle/close in case other scripts fail to attach
-  document.addEventListener("DOMContentLoaded", () => {
-    const btn   = document.getElementById("chat-toggle");
-    const panel = document.getElementById("chat-widget");
-    const close = document.getElementById("close-chat");
+    <input id="lead-name"  type="text" placeholder="Your name (optional)" />
+    <input id="lead-email" type="email" placeholder="Your email (required)" />
+    <input id="lead-phone" type="text" placeholder="Phone (optional)" />
 
-    if (!btn || !panel) {
-      console.error("[SATN] toggle/panel not found");
-      return;
-    }
+    <button id="lead-submit" class="lead-btn">Continue</button>
+  </div>
 
-    // single click handler
-    btn.addEventListener("click", () => {
-      console.log("[SATN] toggle clicked");
-      panel.classList.toggle("hidden");
-      btn.style.display = panel.classList.contains("hidden") ? "block" : "none";
-    });
+  <!-- Chat overlay -->
+  <div id="chat-overlay" class="chat-overlay hidden"></div>
 
-    if (close) {
-      close.addEventListener("click", () => {
-        console.log("[SATN] close clicked");
-        panel.classList.add("hidden");
-        btn.style.display = "block";
-      });
-    }
-  });
-</script>
+  <!-- Floating button -->
+  <button id="chat-toggle" class="chat-toggle">💬</button>
+
+  <!-- Chat widget -->
+  <div id="chat-widget" class="chat-widget hidden">
+
+    <!-- HEADER -->
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <img src="./assets/bot-icon.png" class="chat-avatar" />
+        <div>
+          <h2>Neryx — AI Assistant</h2>
+          <div class="status-row">
+            <span class="status-dot"></span>
+            <span class="status-text">Online</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-header-right">
+        <button id="close-chat" class="chat-close">×</button>
+      </div>
+    </div>
+
+    <!-- CHAT BODY -->
+    <div class="chat-body">
+      <div class="bot-message chat-message">
+        <p>👋 Hi, I’m Neryx from SA Thomson Nerys. How can I help you today?</p>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="chat-footer">
+
+      <!-- Static quick replies row -->
+      <div class="quick-replies">
+        <button class="btn btn-outline" data-quick="contact">📞 Contact an Agent</button>
+        <!-- "Download PDF" button is injected by widget.js -->
+      </div>
+
+      <!-- Input row -->
+      <div class="chat-input-area">
+        <label for="file-upload" class="file-attach-btn" title="Attach file">📎</label>
+        <input id="file-upload" type="file" class="file-input" accept="image/*,pdf,doc,docx" />
+        <input type="text" placeholder="Type your message here…" class="chat-input" />
+        <button class="send-btn">➤</button>
+      </div>
+    </div>
+
+  </div>
 
 </body>
 </html>
